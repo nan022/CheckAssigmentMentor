@@ -1,0 +1,37 @@
+.mypic {
+    width: 100%;
+    height: 300px;
+
+    background-image: linear-gradient(0deg, rgba(91, 91, 91, 0.5), rgba(91, 91, 91, 0.5)), url('img/lx.jpg');
+    background-position: center 55%;
+    background-size: cover;
+
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.mytable {
+    width: 100%;
+}
+
+.mypost {
+    width: 95%;
+    max-width: 500px;
+    margin: 20px auto;
+    box-shadow: 0px 0px 3px 0px black;
+    padding: 20px;
+}
+
+.mypost>button {
+    margin-top: 15px;
+}
+
+.mycards {
+    margin: auto;
+    width: 100%;
+    max-width: 600px;
+}
