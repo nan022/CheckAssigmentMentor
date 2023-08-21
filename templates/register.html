@@ -7,7 +7,7 @@
       <meta name="viewport"
             content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-      <title>Login</title>
+      <title>Register</title>
       <link rel="icon" href="{{ url_for('static', filename='sneat/assets/img/logos/logolx.png') }}" type="image/x-icon" />
       <meta name="description"
             content="Most Powerful &amp; Comprehensive Bootstrap 5 HTML Admin Dashboard Template built for developers!" />
@@ -91,7 +91,7 @@
                   <div class="card h-100">
                         <img src="{{ url_for('static', filename='img/logolx.png') }}">
                         <div class="card-body text-center">
-                              <a href="/register">  <h5 class="card-title"><b>LX Lead Mentor</b></h5></a>
+                              <h5 class="card-title"><b>LX Lead Mentor</b></h5>
                               <h6 class="card-subtitle text-muted">Hi! Welcome back</h6>
                         </div>
                         <div class="container">
@@ -116,17 +116,27 @@
                                                       </div>
                                                 </div>
                                           </div>
-                                          <div class="mt-3 col">
+                                          <div class="col col-mx-12">
+                                                <label for="Nama" class="form-label">Nama</label>
+                                                <input type="text" class="form-control" id="input-nama" name="email"
+                                                      placeholder="Type Here">
+                                          </div>
+                                          <div class="col col-mx-12">
+                                                <label for="Role" class="form-label">Role</label>
+                                      
+                                                <select name="input-role" id="input-role" class="form-control">
+                                                      <option value="Mentor">Mentor</option>
+                                                      <option value="Lead Mentor">Lead Mentor</option>
+                                                </select>
+                                          </div>
+                                          <div class="mt-2 col">
                                                 <div class="form-check mt-3">
-                                                      <input class="form-check-input" type="checkbox" value=""
-                                                            id="defaultCheck1">
-                                                      <label class="form-check-label" for="defaultCheck1">
-                                                            Remember Me
-                                                      </label>
+                                                      <a class="" href="/login">Login</a>
+                                                     
                                                 </div>
                                           </div>
                                           <div class="row mt-4">
-                                                <button onclick="sign_in()" class="btn btn-danger btn-lg">Login</button>
+                                                <button onclick="sign_up()" class="btn btn-danger btn-lg">Register</button>
                                           </div>
                                     </div>
                               </div>

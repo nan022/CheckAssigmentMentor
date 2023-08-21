@@ -16,7 +16,7 @@ dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 MONGODB_URI = os.environ.get("MONGODB_URI")
-DB_NAME =  os.environ.get("DB_NAME")
+DB_NAME = os.environ.get("DB_NAME")
 
 client = MongoClient(MONGODB_URI)
 
@@ -27,19 +27,22 @@ app = Flask(__name__)
 TOKEN_KEY = 'gungnir'
 SECRET_KEY = "MENTORNANDA"
 
+
 def get_mentor_by_institute(institute_name, course_title):
-    result = db.kelas.find({"sekolah": institute_name, "program": course_title}, {"_id": 0, "mentor": 1, "sekolah": 1})
+    result = db.kelas.find({"sekolah": institute_name, "program": course_title}, {
+                           "_id": 0, "mentor": 1, "sekolah": 1})
     mentor_list = [document["mentor"] for document in result]
     mentor_string = ', '.join(mentor_list)
     return mentor_string
 
-@app.route('/', methods=['GET','POST'])
+
+@app.route('/', methods=['GET', 'POST'])
 def home():
     token_receive = request.cookies.get(TOKEN_KEY)
     try:
-        payload = jwt.decode (
-            token_receive, 
-            SECRET_KEY, 
+        payload = jwt.decode(
+            token_receive,
+            SECRET_KEY,
             algorithms=['HS256']
         )
         mentor_record = db.record_mentor.find()
@@ -54,14 +57,22 @@ def home():
     except jwt.exceptions.DecodeError:
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
-    
+
+
+@app.route('/register')
+def register():
+    return render_template("register.html")
+
+
 @app.route('/sign_in', methods=["POST"])
 def sign_in_cek():
     email_receive = request.form['email_give']
     password_receive = request.form['password_give']
+    pw_hash = hashlib.sha256(password_receive.encode("utf-8")).hexdigest()
+
     result = db.users.find_one({
         "email": email_receive,
-        "password": password_receive,
+        "password": pw_hash,
     })
     print(result)
     if result:
@@ -80,18 +91,20 @@ def sign_in_cek():
             "msg": "We could not find a user with that id/password combination",
         })
 
+
 @app.route('/login')
 def login():
     token_receive = request.cookies.get(TOKEN_KEY)
-    return render_template("login.html",token=token_receive)
+    return render_template("login.html", token=token_receive)
+
 
 @app.route('/data_kelas')
 def data_kelas():
     token_receive = request.cookies.get(TOKEN_KEY)
     try:
-        payload = jwt.decode (
-            token_receive, 
-            SECRET_KEY, 
+        payload = jwt.decode(
+            token_receive,
+            SECRET_KEY,
             algorithms=['HS256']
         )
         pipeline = [
@@ -124,13 +137,14 @@ def data_kelas():
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
 
+
 @app.route('/data_history')
 def data_history():
     token_receive = request.cookies.get(TOKEN_KEY)
     try:
-        payload = jwt.decode (
-            token_receive, 
-            SECRET_KEY, 
+        payload = jwt.decode(
+            token_receive,
+            SECRET_KEY,
             algorithms=['HS256']
         )
         pipeline = [
@@ -138,9 +152,9 @@ def data_history():
                 '$group': {
                     '_id': '$waktu',
                     '_status': {
-                        '$first': '$status' 
+                        '$first': '$status'
                     },
-                    'count': { '$sum': 1 }
+                    'count': {'$sum': 1}
                 }
             }
         ]
@@ -153,17 +167,18 @@ def data_history():
     except jwt.exceptions.DecodeError:
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
-    
+
+
 @app.route('/detail_history/<time>')
 def detail_history(time):
     token_receive = request.cookies.get(TOKEN_KEY)
     try:
         payload = jwt.decode(
-            token_receive, 
-            SECRET_KEY, 
+            token_receive,
+            SECRET_KEY,
             algorithms=['HS256']
         )
-        user_info = db.users.find_one({'email': payload.get('email')})  
+        user_info = db.users.find_one({'email': payload.get('email')})
         data = db.record_mentor.find({'waktu': time})
         return render_template("detail_history.html", data_list=data, user_info=user_info)
     except jwt.ExpiredSignatureError:
@@ -173,16 +188,17 @@ def detail_history(time):
         msg = 'There was a problem logging you in'
         return redirect(url_for('login', msg=msg))
 
+
 @app.route('/institute_course')
 def institute_course():
     token_receive = request.cookies.get(TOKEN_KEY)
     try:
-        payload = jwt.decode (
-            token_receive, 
-            SECRET_KEY, 
+        payload = jwt.decode(
+            token_receive,
+            SECRET_KEY,
             algorithms=['HS256']
         )
-        user_info = db.users.find_one({'email': payload.get('email')})  
+        user_info = db.users.find_one({'email': payload.get('email')})
         data = db.institute.find()
         return render_template("institute.html", data=data, user_info=user_info)
     except jwt.ExpiredSignatureError:
@@ -191,17 +207,18 @@ def institute_course():
     except jwt.exceptions.DecodeError:
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
-    
+
+
 @app.route('/mentor')
 def mentor():
     token_receive = request.cookies.get(TOKEN_KEY)
     try:
-        payload = jwt.decode (
-            token_receive, 
-            SECRET_KEY, 
+        payload = jwt.decode(
+            token_receive,
+            SECRET_KEY,
             algorithms=['HS256']
         )
-        user_info = db.users.find_one({'email': payload.get('email')})  
+        user_info = db.users.find_one({'email': payload.get('email')})
         data = db.mentor.find()
         return render_template("mentor.html", data=data, user_info=user_info)
     except jwt.ExpiredSignatureError:
@@ -211,15 +228,18 @@ def mentor():
         msg = 'There was problem logging you in'
         return redirect(url_for('login', msg=msg))
 
+
 @app.route('/delete_data', methods=['POST'])
 def delete_data():
     db.record_mentor.delete_many({})
     return redirect('/data_history')
 
+
 @app.route('/delete_data_class', methods=['POST'])
 def delete_data_class():
     db.kelas.delete_many({})
     return redirect('/data_kelas')
+
 
 @app.route('/tambah_data_kelas', methods=["POST"])
 def kelas_post():
@@ -234,6 +254,7 @@ def kelas_post():
     db.kelas.insert_one(doc)
     return jsonify({'msg': 'Data berhasil disimpan!'})
 
+
 @app.route('/post_institute', methods=["POST"])
 def institute_post():
     institute_receive = request.form['institute_give']
@@ -247,12 +268,13 @@ def institute_post():
     db.institute.insert_one(doc)
     return jsonify({'msg': 'Data berhasil disimpan!'})
 
+
 @app.route('/post_mentor', methods=["POST"])
 def mentor_post():
     mentor_receive = request.form['mentor_give']
     gender_receive = request.form['gender_give']
     address_receive = request.form['address_give']
-    
+
     existing_mentor = db.mentor.find_one({'nama': mentor_receive})
     if existing_mentor:
         return jsonify({'result': 'failed', 'msg': 'Mentor already exists in the database.'})
@@ -263,6 +285,7 @@ def mentor_post():
     }
     db.mentor.insert_one(doc)
     return jsonify({'result': 'success', 'msg': 'Data berhasil disimpan!'})
+
 
 @app.route('/post_data_checking', methods=["POST"])
 def checking_post():
@@ -286,6 +309,7 @@ def checking_post():
     else:
         return jsonify({'msg': 'Tidak ada data yang dipilih.'})
 
+
 @app.route('/mentor_check', methods=['GET', 'POST'])
 def mentor_check():
     token_receive = request.cookies.get(TOKEN_KEY)
@@ -298,24 +322,29 @@ def mentor_check():
         user_info = db.users.find_one({'email': payload.get('email')})
         if request.method == 'POST':
             file = request.files['file']
-            time_off = dt.datetime.strptime(request.form['time_off'], '%Y-%m-%dT%H:%M')
+            time_off = dt.datetime.strptime(
+                request.form['time_off'], '%Y-%m-%dT%H:%M')
 
             if file:
                 csv_file = file.read().decode('utf-8')
                 csv_reader = csv.DictReader(csv_file.splitlines())
 
-                selected_columns = ['Learners Name', 'Institute Name', 'Course Title', 'Submission Date', 'Status']
+                selected_columns = [
+                    'Learners Name', 'Institute Name', 'Course Title', 'Submission Date', 'Status']
 
                 current_date = dt.date.today()
-                previous_day = current_date - timedelta(days=1)  # Use timedelta
-                cutoff_time = dt.datetime.combine(previous_day, dt.time(hour=21, minute=0))
+                previous_day = current_date - \
+                    timedelta(days=1)  # Use timedelta
+                cutoff_time = dt.datetime.combine(
+                    previous_day, dt.time(hour=21, minute=0))
 
                 grouped_data = defaultdict(list)
                 for row in csv_reader:
                     row = {k.strip(): v.strip() for k, v in row.items()}
                     date_string = row['Submission Date']
                     date_value = float(date_string)
-                    date_format = dt.datetime.utcfromtimestamp(date_value / 1000)
+                    date_format = dt.datetime.utcfromtimestamp(
+                        date_value / 1000)
 
                     if row['Status'] == 'pending' and date_format < time_off:
                         institute_name = row['Institute Name']
@@ -329,7 +358,8 @@ def mentor_check():
                             'MentorList': get_mentor_by_institute(institute_name, course_title)
                         }
                         # print(item)
-                        grouped_data[(institute_name, course_title)].append(item)
+                        grouped_data[(institute_name, course_title)
+                                     ].append(item)
 
                 result = []
                 for key, data_list in grouped_data.items():
@@ -347,6 +377,31 @@ def mentor_check():
     except jwt.exceptions.DecodeError:
         msg = 'There was a problem logging you in'
         return redirect(url_for('login', msg=msg))
-   
+
+
+@app.route("/sign_up/save", methods=["POST"])
+def sign_up():
+    # an api endpoint for signing up
+    email_receive = request.form['email_give']
+    password_receive = request.form['password_give']
+    nama_receive = request.form['nama_give']
+    role_receive = request.form['role_give']
+    password_hash = hashlib.sha256(
+        password_receive.encode('utf-8')).hexdigest()
+    doc = {
+        "email": email_receive,                               # id
+        "password": password_hash,                                  # password
+        # user's name is set to their id by default
+        "profile_name": email_receive,
+        # profile image file name
+        "profile_pic": "",
+        "profile_pic_real": "profile_pics/profile_placeholder.png",  # a default profile image
+        "nama": nama_receive,
+        "role": role_receive
+    }
+    db.users.insert_one(doc)
+    return jsonify({'result': 'success'})
+
+
 if __name__ == '__main__':
     app.run(debug=True)

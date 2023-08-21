@@ -48,3 +48,25 @@ function sign_out() {
         }
   });
 }
+
+function sign_up(){
+    let email = $("#email").val();
+    let password = $("#password").val();
+    let nama = $("#input-nama").val();
+    let role = $("#input-role").val();
+    $.ajax({
+        type: "POST",
+        url: "/sign_up/save",
+        data: {
+          email_give: email,
+          password_give: password,
+          nama_give: nama,
+          role_give: role
+        },
+        success: function (response) {
+          alert("Your are signed up! Nice!");
+          window.location.replace("/login");
+        },
+      });
+
+}
