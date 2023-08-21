@@ -258,7 +258,7 @@ def kelas_post():
 @app.route('/post_institute', methods=["POST"])
 def institute_post():
     institute_receive = request.form['institute_give']
-    course_receive = request.form['corse_give']
+    course_receive = request.form['course_give']
     category_receive = request.form['category_give']
     doc = {
         'institute': institute_receive,
